@@ -37,6 +37,8 @@ class PointCloudVisualizer():
             pcd = o3d.geometry.PointCloud.create_from_rgbd_image(rgbd_image, self.pinhole_camera_intrinsic)
             self.pcl.points = pcd.points
             self.pcl.colors = pcd.colors
+            o3d.io.write_point_cloud("/media/lc/Data/cloudD.pcd", pcd, write_ascii=True)   #save in ascci format
+            #o3d.io.write_image("/media/lc/Data/imgD.pgm",rgbd_image.depth)  #ko
         return self.pcl
 
     def visualize_pcd(self):

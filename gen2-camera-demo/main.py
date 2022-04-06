@@ -32,7 +32,7 @@ source_camera  = not args.static_frames
 out_depth      = False  # Disparity by default
 out_rectified  = True   # Output and display rectified streams
 lrcheck  = True   # Better handling for occlusions
-extended = False  # Closer-in minimum depth, disparity range is doubled
+extended = True  # Closer-in minimum depth, disparity range is doubled
 subpixel = False   # Better accuracy for longer distance, fractional disparity 32-levels
 # Options: MEDIAN_OFF, KERNEL_3x3, KERNEL_5x5, KERNEL_7x7
 median   = dai.StereoDepthProperties.MedianFilter.KERNEL_7x7

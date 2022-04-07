@@ -49,6 +49,12 @@ print("    Median filtering:  ", median)
 
 # TODO add API to read this from device / calib data
 right_intrinsic = [[860.0, 0.0, 640.0], [0.0, 860.0, 360.0], [0.0, 0.0, 1.0]]
+"""
+        Intrinsics from getCameraIntrinsics function 1280 x 720:
+        [[788.936829, 0.000000, 660.262817]
+        [0.000000, 788.936829, 357.718628]
+        [0.000000, 0.000000, 1.000000]]
+"""
 
 pcl_converter = None
 if point_cloud:
@@ -218,12 +224,15 @@ def convert_to_cv2_frame(name, image):
             frame = cv2.applyColorMap(frame, cv2.COLORMAP_HOT)
             #frame = cv2.applyColorMap(frame, cv2.COLORMAP_JET)
 
+        #print("pcl_converter: "+ str(pcl_converter))
         if pcl_converter is not None:
             if 0: # Option 1: project colorized disparity
                 frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 pcl_converter.rgbd_to_projection(depth, frame_rgb, True)
             else: # Option 2: project rectified right
                 pcl_converter.rgbd_to_projection(depth, last_rectif_right, False)
+                cv2.imwrite("/media/lc/Data/tmp/Dev/testOAKD/last_rectif_right.png",last_rectif_right)
+                #cv2.imwrite("/media/lc/Data/tmp/Dev/testOAKD/frame.png",frame)
             pcl_converter.visualize_pcd()
 
     else: # mono streams / single channel
@@ -244,6 +253,18 @@ def test_pipeline():
             pipeline, streams = create_rgb_cam_pipeline()
         #pipeline, streams = create_mono_cam_pipeline()
 
+
+        #Get instrinsic calib
+        calibData = device.readCalibration()
+        intrinsics = calibData.getCameraIntrinsics(dai.CameraBoardSocket.LEFT, dai.Size2f(1280, 720))
+        #intrinsics = calibData.getCameraIntrinsics(dai.CameraBoardSocket.RGB, dai.Size2f(w, h))
+        print("Default left camera intrinsics calibration: \n"+ str(intrinsics))
+        """
+        Intrinsics from getCameraIntrinsics function 1280 x 720:
+        [[788.936829, 0.000000, 660.262817]
+        [0.000000, 788.936829, 357.718628]
+        [0.000000, 0.000000, 1.000000]]
+        """
         print("Starting pipeline")
         device.startPipeline(pipeline)
 
@@ -306,6 +327,8 @@ def test_pipeline():
                 if name in ['left', 'right', 'depth']: continue
                 frame = convert_to_cv2_frame(name, image)
                 cv2.imshow(name, frame)
+                pathFrame="/media/lc/Data/tmp/Dev/testOAKD/frame_"+name+".png"
+                cv2.imwrite(pathFrame,frame)
             if cv2.waitKey(1) == ord('q'):
                 break
 

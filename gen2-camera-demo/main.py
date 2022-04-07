@@ -18,6 +18,7 @@ Otherwise, depth output is U16 (mm) and median is functional.
 But like on Gen1, either depth or disparity has valid data. TODO enable both.
 '''
 
+iteration=0
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-pcl", "--pointcloud", help="enables point cloud convertion and visualization", default=False, action="store_true")
@@ -102,7 +103,7 @@ def create_mono_cam_pipeline():
     cam_left .setBoardSocket(dai.CameraBoardSocket.LEFT)
     cam_right.setBoardSocket(dai.CameraBoardSocket.RIGHT)
     for cam in [cam_left, cam_right]: # Common config
-        cam.setResolution(dai.MonoCameraProperties.SensorResolution.THE_720_P)
+        cam.setResolution(dai.MonoCameraProperties.SensorResolution.THE_720_P) #1280 x 720
         #cam.setFps(20.0)
 
     xout_left .setStreamName('left')
@@ -187,7 +188,7 @@ def create_stereo_depth_pipeline(from_camera=True):
 
 # The operations done here seem very CPU-intensive, TODO
 def convert_to_cv2_frame(name, image):
-    global last_rectif_right
+    global last_rectif_right,iteration
     baseline = 75 #mm
     focal = right_intrinsic[0][0]
     max_disp = 96
@@ -225,13 +226,16 @@ def convert_to_cv2_frame(name, image):
             #frame = cv2.applyColorMap(frame, cv2.COLORMAP_JET)
 
         #print("pcl_converter: "+ str(pcl_converter))
+        #global iteration
         if pcl_converter is not None:
             if 0: # Option 1: project colorized disparity
                 frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                pcl_converter.rgbd_to_projection(depth, frame_rgb, True)
+                pcl_converter.rgbd_to_projection(depth, frame_rgb, True,iteration)
             else: # Option 2: project rectified right
-                pcl_converter.rgbd_to_projection(depth, last_rectif_right, False)
-                cv2.imwrite("/media/lc/Data/tmp/Dev/testOAKD/last_rectif_right.png",last_rectif_right)
+                pathFrame0="/media/lc/Data/tmp/Dev/testOAKD/"+str(iteration)+"-tmplast_rectif_right.png"
+                cv2.imwrite(pathFrame0,last_rectif_right)
+                pcl_converter.rgbd_to_projection(depth, last_rectif_right, False,iteration)                
+                #cv2.imwrite("/media/lc/Data/tmp/Dev/testOAKD/current-last_rectif_right.png",last_rectif_right)
                 #cv2.imwrite("/media/lc/Data/tmp/Dev/testOAKD/frame.png",frame)
             pcl_converter.visualize_pcd()
 
@@ -243,6 +247,7 @@ def convert_to_cv2_frame(name, image):
 
 
 def test_pipeline():
+    global iteration
     print("Creating DepthAI device")
     with dai.Device() as device:
         cams = device.getConnectedCameras()
@@ -256,7 +261,8 @@ def test_pipeline():
 
         #Get instrinsic calib
         calibData = device.readCalibration()
-        intrinsics = calibData.getCameraIntrinsics(dai.CameraBoardSocket.LEFT, dai.Size2f(1280, 720))
+        intrinsics = calibData.getCameraIntrinsics(dai.CameraBoardSocket.RIGHT, dai.Size2f(1280, 720)) #Stero with respecto to Rigth?
+        #intrinsics = calibData.getCameraIntrinsics(dai.CameraBoardSocket.LEFT, dai.Size2f(1280, 720))
         #intrinsics = calibData.getCameraIntrinsics(dai.CameraBoardSocket.RGB, dai.Size2f(w, h))
         print("Default left camera intrinsics calibration: \n"+ str(intrinsics))
         """
@@ -327,8 +333,10 @@ def test_pipeline():
                 if name in ['left', 'right', 'depth']: continue
                 frame = convert_to_cv2_frame(name, image)
                 cv2.imshow(name, frame)
-                pathFrame="/media/lc/Data/tmp/Dev/testOAKD/frame_"+name+".png"
+                pathFrame="/media/lc/Data/tmp/Dev/testOAKD/"+str(iteration)+"-"+name+".png"
                 cv2.imwrite(pathFrame,frame)
+            
+            iteration=iteration+1
             if cv2.waitKey(1) == ord('q'):
                 break
 

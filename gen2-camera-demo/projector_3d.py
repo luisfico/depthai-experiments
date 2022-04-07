@@ -21,7 +21,7 @@ class PointCloudVisualizer():
         self.vis.create_window()
         self.isstarted = False
 
-    def rgbd_to_projection(self, depth_map, rgb, is_rgb):
+    def rgbd_to_projection(self, depth_map, rgb, is_rgb,iteration):
         self.depth_map = depth_map
         self.rgb = rgb
         rgb_o3d = o3d.geometry.Image(self.rgb)
@@ -37,7 +37,9 @@ class PointCloudVisualizer():
             pcd = o3d.geometry.PointCloud.create_from_rgbd_image(rgbd_image, self.pinhole_camera_intrinsic)
             self.pcl.points = pcd.points
             self.pcl.colors = pcd.colors
-            o3d.io.write_point_cloud("/media/lc/Data/tmp/Dev/testOAKD/cloudD.pcd", pcd, write_ascii=True)   #save in ascci format
+            path_pcd="/media/lc/Data/tmp/Dev/testOAKD/"+str(iteration)+"-tmpColorCloud.pcd"
+            o3d.io.write_point_cloud(path_pcd, pcd, write_ascii=True)   #save in ascci format
+            #o3d.io.write_point_cloud("/media/lc/Data/tmp/Dev/testOAKD/cloudD.pcd", pcd, write_ascii=True)   #save in ascci format
             #o3d.io.write_image("/media/lc/Data/imgD.pgm",rgbd_image.depth)  #ko
         return self.pcl
 

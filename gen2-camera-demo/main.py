@@ -49,7 +49,8 @@ print("    Subpixel:          ", subpixel)
 print("    Median filtering:  ", median)
 
 # TODO add API to read this from device / calib data
-right_intrinsic = [[860.0, 0.0, 640.0], [0.0, 860.0, 360.0], [0.0, 0.0, 1.0]]
+#right_intrinsic = [[860.0, 0.0, 640.0], [0.0, 860.0, 360.0], [0.0, 0.0, 1.0]]
+right_intrinsic = [[788.936829, 0.0, 660.262817], [0.0, 788.936829, 357.718628], [0.0, 0.0, 1.0]]
 """
         Intrinsics from getCameraIntrinsics function 1280 x 720:
         [[788.936829, 0.000000, 660.262817]
@@ -232,8 +233,10 @@ def convert_to_cv2_frame(name, image):
                 frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 pcl_converter.rgbd_to_projection(depth, frame_rgb, True,iteration)
             else: # Option 2: project rectified right
-                pathFrame0="/media/lc/Data/tmp/Dev/testOAKD/"+str(iteration)+"-tmplast_rectif_right.png"
-                cv2.imwrite(pathFrame0,last_rectif_right)
+                pathFrameDepth="/media/lc/Data/tmp/Dev/testOAKD/"+str(iteration)+"-tmpImgDepth.pgm"
+                cv2.imwrite(pathFrameDepth,depth) # use −1 flag to load the depth imaGE
+                pathFrameImg="/media/lc/Data/tmp/Dev/testOAKD/"+str(iteration)+"-tmpImgRight.png"
+                cv2.imwrite(pathFrameImg,last_rectif_right)
                 pcl_converter.rgbd_to_projection(depth, last_rectif_right, False,iteration)                
                 #cv2.imwrite("/media/lc/Data/tmp/Dev/testOAKD/current-last_rectif_right.png",last_rectif_right)
                 #cv2.imwrite("/media/lc/Data/tmp/Dev/testOAKD/frame.png",frame)

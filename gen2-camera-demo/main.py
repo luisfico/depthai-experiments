@@ -37,6 +37,7 @@ extended = False  # Closer-in minimum depth, disparity range is doubled
 subpixel = True   # Better accuracy for longer distance, fractional disparity 32-levels
 # Options: MEDIAN_OFF, KERNEL_3x3, KERNEL_5x5, KERNEL_7x7
 median   = dai.StereoDepthProperties.MedianFilter.KERNEL_7x7
+fixScale=0.27
 
 # Sanitize some incompatible options
 if lrcheck or extended or subpixel:
@@ -57,6 +58,7 @@ right_intrinsic = [[788.936829, 0.0, 660.262817], [0.0, 788.936829, 357.718628],
         [0.000000, 788.936829, 357.718628]
         [0.000000, 0.000000, 1.000000]]
 """
+
 
 pcl_converter = None
 if point_cloud:
@@ -219,7 +221,7 @@ def convert_to_cv2_frame(name, image):
 
         # Compute depth from disparity (32 levels)
         with np.errstate(divide='ignore'): # Should be safe to ignore div by zero here
-            depth = (disp_levels * baseline * focal / disp).astype(np.uint16)
+            depth = (fixScale*disp_levels * baseline * focal / disp).astype(np.uint16)
 
         if 1: # Optionally, extend disparity range to better visualize it
             frame = (disp * 255. / max_disp).astype(np.uint8)

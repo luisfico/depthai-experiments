@@ -49,6 +49,8 @@ class PointCloudVisualizer():
             origin = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.3, origin=[0, 0, 0])
             self.vis.add_geometry(origin)
             self.isstarted = True
+            #ctr = self.vis.get_view_control()
+            #ctr.rotate(10.0, 0.0)
         else:
             self.vis.update_geometry(self.pcl)
             self.vis.poll_events()

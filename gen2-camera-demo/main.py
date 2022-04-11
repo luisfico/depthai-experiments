@@ -32,7 +32,7 @@ point_cloud    = args.pointcloud   # Create point cloud visualizer. Depends on '
 source_camera  = not args.static_frames
 out_depth      = False  # Disparity by default
 out_rectified  = True   # Output and display rectified streams
-lrcheck  = False   # Better handling for occlusions
+lrcheck  = True   # Better handling for occlusions
 extended = False  # Closer-in minimum depth, disparity range is doubled
 subpixel = True   # Better accuracy for longer distance, fractional disparity 32-levels
 # Options: MEDIAN_OFF, KERNEL_3x3, KERNEL_5x5, KERNEL_7x7
@@ -149,10 +149,12 @@ def create_stereo_depth_pipeline(from_camera=True):
         cam_left .setStreamName('in_left')
         cam_right.setStreamName('in_right')
 
-    stereo.initialConfig.setConfidenceThreshold(200)
+    stereo.initialConfig.setConfidenceThreshold(200)  # 200    0-250
+    # stereo.initialConfig.setBilateralFilterSigma(64000)  #0    0:250
     stereo.setRectifyEdgeFillColor(0) # Black, to better see the cutout
     stereo.initialConfig.setMedianFilter(median) # KERNEL_7x7 default
     stereo.setLeftRightCheck(lrcheck)
+    #stereo.setLeftRightCheckThreshold(4) # 4 <0;10>    see https://www.youtube.com/watch?v=Ozh51By3ipI
     stereo.setExtendedDisparity(extended)
     stereo.setSubpixel(subpixel)
     if from_camera:

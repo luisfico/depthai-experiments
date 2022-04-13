@@ -49,7 +49,8 @@ print("    Extended disparity:", extended)
 print("    Subpixel:          ", subpixel)
 print("    Median filtering:  ", median)
 
-#TODO: to calib
+#TODO: to calib 
+#TODO: to use cameras in fix focus:   https://discuss.luxonis.com/d/485-anti-banding   example  ctrl.setManualFocus(135)
 
 # TODO add API to read this from device / calib data
 #right_intrinsic = [[860.0, 0.0, 640.0], [0.0, 860.0, 360.0], [0.0, 0.0, 1.0]]
@@ -62,7 +63,8 @@ right_intrinsic = [[394.4684143066406, 0.0, 330.13140869140625], [0.0, 394.46841
         [0.000000, 0.000000, 1.000000]]
 
         Intrinsics from getCameraIntrinsics function 640 x 400:
-        [[394.4684143066406, 0.0, 330.13140869140625], [0.0, 394.4684143066406, 198.85931396484375], [0.0, 0.0, 1.0]]
+        [[394.4684143066406, 0.0, 330.13140869140625], [0.0, 394.4684143066406, 198.85931396484375], [0.0, 0.0, 1.0]]   #right
+        [[398.579833984375, 0.0, 320.6894226074219], [0.0, 398.579833984375, 195.06619262695312], [0.0, 0.0, 1.0]]      #left
 """
 
 
@@ -88,8 +90,14 @@ def create_rgb_cam_pipeline():
 
     cam.setPreviewSize(540, 540)
     cam.setResolution(dai.ColorCameraProperties.SensorResolution.THE_1080_P)
+    #cam.setResolution(dai.ColorCameraProperties.SensorResolution.THE_720_P)
+    #cam.setResolution(dai.ColorCameraProperties.SensorResolution.THE_400_P)
     cam.setInterleaved(False)
+    # Color cam: 1920x1080
+    # Mono cam: 640x400
+    cam.setIspScale(2,3) # 2,3    2/3 THE_1080_P  resolution  To match 400P mono cameras
     cam.setBoardSocket(dai.CameraBoardSocket.RGB)
+    #cam.initialControl.setManualFocus(130)
 
     xout_preview.setStreamName('rgb_preview')
     xout_video  .setStreamName('rgb_video')
@@ -280,7 +288,7 @@ def test_pipeline():
         #Get instrinsic calib
         calibData = device.readCalibration()
         #intrinsics = calibData.getCameraIntrinsics(dai.CameraBoardSocket.RIGHT, dai.Size2f(1280, 720)) #Stero with respect to Rigth?
-        intrinsics = calibData.getCameraIntrinsics(dai.CameraBoardSocket.RIGHT, dai.Size2f(640,400)) #640x400 https://docs.luxonis.com/projects/api/en/latest/components/nodes/stereo_depth/
+        intrinsics = calibData.getCameraIntrinsics(dai.CameraBoardSocket.LEFT, dai.Size2f(640,400)) #640x400 https://docs.luxonis.com/projects/api/en/latest/components/nodes/stereo_depth/
         
         #intrinsics = calibData.getCameraIntrinsics(dai.CameraBoardSocket.LEFT, dai.Size2f(1280, 720))
         #intrinsics = calibData.getCameraIntrinsics(dai.CameraBoardSocket.RGB, dai.Size2f(w, h))
@@ -292,7 +300,8 @@ def test_pipeline():
         [0.000000, 0.000000, 1.000000]]
 
         Intrinsics from getCameraIntrinsics function 640 x 400:
-        [[394.4684143066406, 0.0, 330.13140869140625], [0.0, 394.4684143066406, 198.85931396484375], [0.0, 0.0, 1.0]]
+        [[394.4684143066406, 0.0, 330.13140869140625], [0.0, 394.4684143066406, 198.85931396484375], [0.0, 0.0, 1.0]]   #right
+        [[398.579833984375, 0.0, 320.6894226074219], [0.0, 398.579833984375, 195.06619262695312], [0.0, 0.0, 1.0]]      #left
         """
         print("Starting pipeline")
         device.startPipeline(pipeline)

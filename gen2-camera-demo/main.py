@@ -37,7 +37,7 @@ extended = False  # Closer-in minimum depth, disparity range is doubled
 subpixel = True   # Better accuracy for longer distance, fractional disparity 32-levels
 # Options: MEDIAN_OFF, KERNEL_3x3, KERNEL_5x5, KERNEL_7x7
 median   = dai.StereoDepthProperties.MedianFilter.KERNEL_7x7
-fixScale=0.27
+fixScale=1 #0.27 for subpixel mode
 
 # Sanitize some incompatible options
 if lrcheck or extended or subpixel:
@@ -49,14 +49,20 @@ print("    Extended disparity:", extended)
 print("    Subpixel:          ", subpixel)
 print("    Median filtering:  ", median)
 
+#TODO: to calib
+
 # TODO add API to read this from device / calib data
 #right_intrinsic = [[860.0, 0.0, 640.0], [0.0, 860.0, 360.0], [0.0, 0.0, 1.0]]
-right_intrinsic = [[788.936829, 0.0, 660.262817], [0.0, 788.936829, 357.718628], [0.0, 0.0, 1.0]]
+#right_intrinsic = [[788.936829, 0.0, 660.262817], [0.0, 788.936829, 357.718628], [0.0, 0.0, 1.0]] #1280x720
+right_intrinsic = [[394.4684143066406, 0.0, 330.13140869140625], [0.0, 394.4684143066406, 198.85931396484375], [0.0, 0.0, 1.0]] #640x400
 """
         Intrinsics from getCameraIntrinsics function 1280 x 720:
         [[788.936829, 0.000000, 660.262817]
         [0.000000, 788.936829, 357.718628]
         [0.000000, 0.000000, 1.000000]]
+
+        Intrinsics from getCameraIntrinsics function 640 x 400:
+        [[394.4684143066406, 0.0, 330.13140869140625], [0.0, 394.4684143066406, 198.85931396484375], [0.0, 0.0, 1.0]]
 """
 
 
@@ -67,7 +73,8 @@ if point_cloud:
             from projector_3d import PointCloudVisualizer
         except ImportError as e:
             raise ImportError(f"\033[1;5;31mError occured when importing PCL projector: {e}. Try disabling the point cloud \033[0m ")
-        pcl_converter = PointCloudVisualizer(right_intrinsic, 1280, 720)
+        #pcl_converter = PointCloudVisualizer(right_intrinsic, 1280, 720)
+        pcl_converter = PointCloudVisualizer(right_intrinsic, 640,400)
     else:
         print("Disabling point-cloud visualizer, as out_rectified is not set")
 
@@ -106,7 +113,8 @@ def create_mono_cam_pipeline():
     cam_left .setBoardSocket(dai.CameraBoardSocket.LEFT)
     cam_right.setBoardSocket(dai.CameraBoardSocket.RIGHT)
     for cam in [cam_left, cam_right]: # Common config
-        cam.setResolution(dai.MonoCameraProperties.SensorResolution.THE_720_P) #1280 x 720
+        #cam.setResolution(dai.MonoCameraProperties.SensorResolution.THE_720_P) #1280 x 720
+        cam.setResolution(dai.MonoCameraProperties.SensorResolution.THE_400_P) #400
         #cam.setFps(20.0)
 
     xout_left .setStreamName('left')
@@ -145,7 +153,8 @@ def create_stereo_depth_pipeline(from_camera=True):
         cam_left .setBoardSocket(dai.CameraBoardSocket.LEFT)
         cam_right.setBoardSocket(dai.CameraBoardSocket.RIGHT)
         for cam in [cam_left, cam_right]: # Common config
-            cam.setResolution(dai.MonoCameraProperties.SensorResolution.THE_720_P)
+            cam.setResolution(dai.MonoCameraProperties.SensorResolution.THE_400_P)
+            #cam.setResolution(dai.MonoCameraProperties.SensorResolution.THE_720_P)
             #cam.setFps(20.0)
     else:
         cam_left .setStreamName('in_left')
@@ -165,7 +174,9 @@ def create_stereo_depth_pipeline(from_camera=True):
         pass
     else:
         stereo.setEmptyCalibration() # Set if the input frames are already rectified
-        stereo.setInputResolution(1280, 720)
+        stereo.setInputResolution(640, 400)
+        #stereo.setInputResolution(1280, 720)
+        
 
     xout_left        .setStreamName('left')
     xout_right       .setStreamName('right')
@@ -221,7 +232,7 @@ def convert_to_cv2_frame(name, image):
 
         # Compute depth from disparity (32 levels)
         with np.errstate(divide='ignore'): # Should be safe to ignore div by zero here
-            depth = (fixScale*disp_levels * baseline * focal / disp).astype(np.uint16)
+            depth = (fixScale*disp_levels * baseline * focal / disp).astype(np.uint16) #in mm
 
         if 1: # Optionally, extend disparity range to better visualize it
             frame = (disp * 255. / max_disp).astype(np.uint8)
@@ -268,7 +279,9 @@ def test_pipeline():
 
         #Get instrinsic calib
         calibData = device.readCalibration()
-        intrinsics = calibData.getCameraIntrinsics(dai.CameraBoardSocket.RIGHT, dai.Size2f(1280, 720)) #Stero with respecto to Rigth?
+        #intrinsics = calibData.getCameraIntrinsics(dai.CameraBoardSocket.RIGHT, dai.Size2f(1280, 720)) #Stero with respect to Rigth?
+        intrinsics = calibData.getCameraIntrinsics(dai.CameraBoardSocket.RIGHT, dai.Size2f(640,400)) #640x400 https://docs.luxonis.com/projects/api/en/latest/components/nodes/stereo_depth/
+        
         #intrinsics = calibData.getCameraIntrinsics(dai.CameraBoardSocket.LEFT, dai.Size2f(1280, 720))
         #intrinsics = calibData.getCameraIntrinsics(dai.CameraBoardSocket.RGB, dai.Size2f(w, h))
         print("Default left camera intrinsics calibration: \n"+ str(intrinsics))
@@ -277,6 +290,9 @@ def test_pipeline():
         [[788.936829, 0.000000, 660.262817]
         [0.000000, 788.936829, 357.718628]
         [0.000000, 0.000000, 1.000000]]
+
+        Intrinsics from getCameraIntrinsics function 640 x 400:
+        [[394.4684143066406, 0.0, 330.13140869140625], [0.0, 394.4684143066406, 198.85931396484375], [0.0, 0.0, 1.0]]
         """
         print("Starting pipeline")
         device.startPipeline(pipeline)
@@ -313,7 +329,9 @@ def test_pipeline():
                 for i, q in enumerate(in_q_list):
                     name = q.getName()
                     path = 'dataset/' + str(index) + '/' + name + '.png'
-                    data = cv2.imread(path, cv2.IMREAD_GRAYSCALE).reshape(720*1280)
+                    #data = cv2.imread(path, cv2.IMREAD_GRAYSCALE).reshape(720*1280)
+                    data = cv2.imread(path, cv2.IMREAD_GRAYSCALE).reshape(400*640)
+                    
                     tstamp = datetime.timedelta(seconds = timestamp_ms // 1000,
                                                 milliseconds = timestamp_ms % 1000)
                     img = dai.ImgFrame()
@@ -321,8 +339,11 @@ def test_pipeline():
                     img.setTimestamp(tstamp)
                     img.setInstanceNum(inStreamsCameraID[i])
                     img.setType(dai.ImgFrame.Type.RAW8)
-                    img.setWidth(1280)
-                    img.setHeight(720)
+                    #img.setWidth(1280)
+                    #img.setHeight(720)
+                    img.setWidth(640)
+                    img.setHeight(400)
+                    
                     q.send(img)
                     if timestamp_ms == 0:  # Send twice for first iteration
                         q.send(img)

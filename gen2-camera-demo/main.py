@@ -36,8 +36,8 @@ lrcheck  = True   # Better handling for occlusions
 extended = False  # Closer-in minimum depth, disparity range is doubled
 subpixel = True   # Better accuracy for longer distance, fractional disparity 32-levels
 # Options: MEDIAN_OFF, KERNEL_3x3, KERNEL_5x5, KERNEL_7x7
-median   = dai.StereoDepthProperties.MedianFilter.KERNEL_7x7
-fixScale=1 #0.27 for subpixel mode
+median   = dai.StereoDepthProperties.MedianFilter.MEDIAN_OFF
+fixScale=1080/400/10  #0.27 for subpixel mode
 
 # Sanitize some incompatible options
 if lrcheck or extended or subpixel:
@@ -95,7 +95,7 @@ def create_rgb_cam_pipeline():
     cam.setInterleaved(False)
     # Color cam: 1920x1080
     # Mono cam: 640x400
-    cam.setIspScale(2,3) # 2,3    2/3 THE_1080_P  resolution  To match 400P mono cameras
+    #cam.setIspScale(2,3) # 2,3    2/3 THE_1080_P  resolution  To match 400P mono cameras
     cam.setBoardSocket(dai.CameraBoardSocket.RGB)
     #cam.initialControl.setManualFocus(130)
 

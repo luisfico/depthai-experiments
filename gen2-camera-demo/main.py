@@ -122,7 +122,7 @@ def create_mono_cam_pipeline():
     cam_right.setBoardSocket(dai.CameraBoardSocket.RIGHT)
     for cam in [cam_left, cam_right]: # Common config
         #cam.setResolution(dai.MonoCameraProperties.SensorResolution.THE_720_P) #1280 x 720
-        cam.setResolution(dai.MonoCameraProperties.SensorResolution.THE_400_P) #400
+        cam.setResolution(dai.MonoCameraProperties.SensorResolution.THE_400_P) #640x400
         #cam.setFps(20.0)
 
     xout_left .setStreamName('left')
@@ -182,8 +182,8 @@ def create_stereo_depth_pipeline(from_camera=True):
         pass
     else:
         stereo.setEmptyCalibration() # Set if the input frames are already rectified
-        stereo.setInputResolution(640, 400)
-        #stereo.setInputResolution(1280, 720)
+        #stereo.setInputResolution(640, 400)
+        stereo.setInputResolution(1280, 720)
         
 
     xout_left        .setStreamName('left')
@@ -256,13 +256,13 @@ def convert_to_cv2_frame(name, image):
                 frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 pcl_converter.rgbd_to_projection(depth, frame_rgb, True,iteration)
             else: # Option 2: project rectified right
-                pathFrameDepth="/media/lc/Data/tmp/Dev/testOAKD/"+str(iteration)+"-tmpImgDepth.pgm"
+                pathFrameDepth="/home/lc/envPyOak/oakd/codePy/data/"+str(iteration)+"-tmpImgDepth.pgm"
                 cv2.imwrite(pathFrameDepth,depth) # use −1 flag to load the depth imaGE
-                pathFrameImg="/media/lc/Data/tmp/Dev/testOAKD/"+str(iteration)+"-tmpImgRight.png"
+                pathFrameImg="/home/lc/envPyOak/oakd/codePy/data/"+str(iteration)+"-tmpImgRight.png"
                 cv2.imwrite(pathFrameImg,last_rectif_right)
                 pcl_converter.rgbd_to_projection(depth, last_rectif_right, False,iteration)                
-                #cv2.imwrite("/media/lc/Data/tmp/Dev/testOAKD/current-last_rectif_right.png",last_rectif_right)
-                #cv2.imwrite("/media/lc/Data/tmp/Dev/testOAKD/frame.png",frame)
+                #cv2.imwrite("/home/lc/envPyOak/oakd/codePy/data/current-last_rectif_right.png",last_rectif_right)
+                #cv2.imwrite("/home/lc/envPyOak/oakd/codePy/data/frame.png",frame)
             pcl_converter.visualize_pcd()
 
     else: # mono streams / single channel
@@ -370,7 +370,7 @@ def test_pipeline():
                 if name in ['left', 'right', 'depth']: continue
                 frame = convert_to_cv2_frame(name, image)
                 cv2.imshow(name, frame)
-                pathFrame="/media/lc/Data/tmp/Dev/testOAKD/"+str(iteration)+"-"+name+".png"
+                pathFrame="/home/lc/envPyOak/oakd/codePy/data/"+str(iteration)+"-"+name+".png"
                 cv2.imwrite(pathFrame,frame)
             
             iteration=iteration+1

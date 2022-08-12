@@ -37,16 +37,16 @@ class PointCloudVisualizer():
             pcd = o3d.geometry.PointCloud.create_from_rgbd_image(rgbd_image, self.pinhole_camera_intrinsic)
             self.pcl.points = pcd.points
             self.pcl.colors = pcd.colors
-            path_pcd="/media/lc/Data/tmp/Dev/testOAKD/"+str(iteration)+"-tmpColorCloud.pcd"
+            path_pcd="/home/lc/envPyOak/oakd/codePy/data/"+str(iteration)+"-tmpColorCloud.pcd"
             o3d.io.write_point_cloud(path_pcd, pcd, write_ascii=True)   #save in ascci format
-            #o3d.io.write_point_cloud("/media/lc/Data/tmp/Dev/testOAKD/cloudD.pcd", pcd, write_ascii=True)   #save in ascci format
+            #o3d.io.write_point_cloud("/home/lc/envPyOak/oakd/codePy/data/cloudD.pcd", pcd, write_ascii=True)   #save in ascci format
             #o3d.io.write_image("/media/lc/Data/imgD.pgm",rgbd_image.depth)  #ko
         return self.pcl
 
     def visualize_pcd(self):
         if not self.isstarted:
             self.vis.add_geometry(self.pcl)
-            origin = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.3, origin=[0, 0, 0])
+            origin = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.3, origin=[0, 0, 0])#axis cordiantes 30cm
             self.vis.add_geometry(origin)
             self.isstarted = True
             #ctr = self.vis.get_view_control()

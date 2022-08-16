@@ -8,6 +8,9 @@ import datetime
 import argparse
 
 '''
+pxTODO: Use this stereo cloud (right camera frame) and to align to color camera (1080p or 4K) 
+
+
 If one or more of the additional depth modes (lrcheck, extended, subpixel)
 are enabled, then:
  - depth output is FP16. TODO enable U16.

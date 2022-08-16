@@ -50,5 +50,24 @@ python3 main.py -pcl
 
 The recorded data is stocked in:
 
-/home/lc/envPyOak/oakd/codePy/data/
+/home/lc/envPyOak/oakd/codePy/data/ 
+
+
+
+## Px Summary
+
+C++ project
+git remote add origin git@github.com:luisfico/depthai-core.git	     
+(oak c++ running as example of library) OK get cloud from aligned 4Kimages with depth 400p. Min distance of deteccion=65cm   (Depth aligment with color camera performed by ISP oakd)
+
+C++ project
+git remote add origin git@github.com:luisfico/depthai-core-example.git  
+(oak c++ isolated project ) ko get correct cloud  
+
+Python project
+git remote add origin git@github.com:luisfico/depthai-experiments.git   
+(oak python get color ) OK get cloud from aligned stereo images 400p. Min distance of deteccion=35cm (no depth aligment with color camera. TODO)
+
+
+
 

@@ -11,6 +11,9 @@ import argparse
 RUN:    python3 main.py -pcl
 The recorded data is stocked in:    /home/lc/envPyOak/oakd/codePy/data/ 
 
+USAGE of depthai_pipeline_graph to see internal connection
+https://github.com/geaxgx/depthai_pipeline_graph
+run:    pipeline_graph run "python main.py -pcl"       
 
 pxTODO: Use this stereo cloud (right camera frame) and to align to color camera (1080p or 4K) 
 

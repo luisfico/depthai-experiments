@@ -2,3 +2,8 @@
 __pycache__
 */data/*
 */.idea/
+
+build/
+/build
+.vscode/
+/.vscode

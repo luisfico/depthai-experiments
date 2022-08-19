@@ -70,4 +70,7 @@ git remote add origin git@github.com:luisfico/depthai-experiments.git
 
 
 
-
+## Node graph
++USAGE of depthai_pipeline_graph to see internal connection
++https://github.com/geaxgx/depthai_pipeline_graph
++run:    pipeline_graph run "python main.py -pcl"   

@@ -15,6 +15,16 @@ USAGE of depthai_pipeline_graph to see internal connection
 https://github.com/geaxgx/depthai_pipeline_graph
 run:    pipeline_graph run "python main.py -pcl"       
 
+TODO:  try all the internal depthai nodes for example:   
+        Call node by python
+        stereo            = pipeline.create(dai.node.StereoDepth)
+        Call node by c++
+        auto stereo = pipeline.create<dai::node::StereoDepth>();
+
+        Try aruco detection
+        pipeline.create(dai.node.AprilTag)
+        pipeline.create<dai::node::AprilTag>();
+
 pxTODO: Use this stereo cloud (right camera frame) and to align to color camera (1080p or 4K) 
 
 
